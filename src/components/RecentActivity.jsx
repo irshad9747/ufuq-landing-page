@@ -1,4 +1,5 @@
 import { useReveal } from '../hooks/useReveal'
+import { getImagePath } from '../utils/imagePath'
 
 const RecentActivity = () => {
   const ref = useReveal()
@@ -9,28 +10,28 @@ const RecentActivity = () => {
       title: 'Exploring Intersections of Science, Technology, Society & Theology - Summer School', 
       date: '27, 28, 29 May 2025',
       location: 'Al Jamia Al Islamiya, Santhapuram',
-      image: '/images/events/jamia-summer-school.webp'
+      image: getImagePath('/images/events/jamia-summer-school.webp')
     },
     { 
       month: 'Aug 2025', 
       title: 'Workshop on Aqeeda, Philosophy and Science: Navigating Technology in the Modern Era', 
       date: '03 August 2025',
       location: 'Unity Center, Kannur',
-      image: '/images/events/unity-center-workshop.webp'
+      image: getImagePath('/images/events/unity-center-workshop.webp')
     },
     { 
       month: 'Aug 2025', 
       title: 'Science and Technology Fest Declaration Ceremony', 
       date: '17 August 2025',
       location: 'Ernakulam Town Hall',
-      image: '/images/events/ern-declaration-ceremony.webp'
+      image: getImagePath('/images/events/ern-declaration-ceremony.webp')
     },
     { 
       month: 'Aug 2025', 
       title: "Let's Ai It! AI Orientation Workshop", 
       date: '24 August 2025',
       location: 'Hira Centre Auditorium, Kozhikode',
-      image: '/images/events/hira-clct-ai-workshop.webp'
+      image: getImagePath('/images/events/hira-clct-ai-workshop.webp')
     },
   ]
 

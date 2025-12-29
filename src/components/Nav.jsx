@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { smoothScrollTo } from '../utils/smoothScroll'
+import { getImagePath } from '../utils/imagePath'
 import StaggeredMenu from './StaggeredMenu'
 import GradualBlur from './GradualBlur'
 
@@ -107,7 +108,7 @@ const Nav = () => {
             className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded"
             aria-label="Go to home section"
           >
-            <img src="/icons/ufuq-logo.webp" alt="UFUQ Logo" className="h-[50px]" />
+            <img src={getImagePath('/icons/ufuq-logo.webp')} alt="UFUQ Logo" className="h-[50px]" />
           </a>
           
           {/* Navigation Links - Center */}
@@ -149,7 +150,7 @@ const Nav = () => {
           openMenuButtonColor="#fff"
           changeMenuColorOnOpen={true}
           colors={['#03030a', '#1a1a2e', '#16213e']}
-          logoUrl="/icons/ufuq-logo.webp"
+          logoUrl={getImagePath('/icons/ufuq-logo.webp')}
           accentColor="#6C63FF"
           isFixed={true}
           closeOnClickAway={true}

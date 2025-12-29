@@ -1,6 +1,7 @@
 import { useReveal } from '../hooks/useReveal'
 import SpeakerCarousel from './SpeakerCarousel'
 import SpeakerCard from './SpeakerCard'
+import { getImagePath } from '../utils/imagePath'
 
 const Speakers = () => {
   const headerRef = useReveal()
@@ -12,7 +13,7 @@ const Speakers = () => {
       affiliation: 'Azim Premji University',
       description: 'Researches the history and sociology of caste, knowledge production, and science; holds advanced degrees in sociology and science policy.',
       gradient: 'from-indigo-500 to-purple-600',
-      image: '/images/speakers/sunandan-k-n.webp'
+      image: getImagePath('/images/speakers/sunandan-k-n.webp')
     },
     {
       initials: 'SM',
@@ -20,7 +21,7 @@ const Speakers = () => {
       affiliation: 'Govt. Arts & Science College',
       description: 'Completed his MPhil and PhD at Jawaharlal Nehru University, Delhi. His research interests focus on the relationship between technology and art.',
       gradient: 'from-purple-500 to-pink-600',
-      image: '/images/speakers/dr-salih-m.webp'
+      image: getImagePath('/images/speakers/dr-salih-m.webp')
     },
     {
       initials: 'WR',
@@ -28,7 +29,7 @@ const Speakers = () => {
       affiliation: 'PhD Candidate, JNU',
       description: 'Explores how biomedical knowledge is created and practiced in everyday settings, focusing on the interplay between science and society.',
       gradient: 'from-emerald-500 to-teal-600',
-      image: '/images/speakers/wafa-razak.webp'
+      image: getImagePath('/images/speakers/wafa-razak.webp')
     },
     {
       initials: 'AA',
@@ -36,7 +37,7 @@ const Speakers = () => {
       affiliation: 'ETH Zurich (Former)',
       description: 'Works on the history of vernacular mathematics in medieval South India. Completed postdoctoral research at ETH Zurich.',
       gradient: 'from-blue-500 to-indigo-600',
-      image: '/images/speakers/dr-arun-ashokan.webp'
+      image: getImagePath('/images/speakers/dr-arun-ashokan.webp')
     },
     {
       initials: 'SH',
@@ -44,7 +45,7 @@ const Speakers = () => {
       affiliation: 'Darul Huda Islamic University',
       description: 'Former Head of the Department of Civilizational Studies. He has expertise in philosophy of science and civilizational studies.',
       gradient: 'from-orange-500 to-red-600',
-      image: '/images/speakers/shameerali-hudawi.webp'
+      image: getImagePath('/images/speakers/shameerali-hudawi.webp')
     },
     {
       initials: 'MS',
@@ -52,7 +53,7 @@ const Speakers = () => {
       affiliation: 'IIT Palakkad (Former)',
       description: 'Holds a Master\'s degree in Philosophy from the University of Hyderabad. Research interests lie in the field of philosophy.',
       gradient: 'from-cyan-500 to-blue-600',
-      image: '/images/speakers/dr-muhammed-shareef.webp'
+      image: getImagePath('/images/speakers/dr-muhammed-shareef.webp')
     },
   ]
 

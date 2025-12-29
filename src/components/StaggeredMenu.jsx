@@ -1,5 +1,6 @@
 import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
+import { getImagePath } from '../utils/imagePath';
 import './StaggeredMenu.css';
 
 export const StaggeredMenu = ({
@@ -10,7 +11,7 @@ export const StaggeredMenu = ({
   displaySocials = true,
   displayItemNumbering = true,
   className,
-  logoUrl = '/icons/ufuq-logo.webp',
+  logoUrl = getImagePath('/icons/ufuq-logo.webp'),
   menuButtonColor = '#fff',
   openMenuButtonColor = '#fff',
   accentColor = '#5227FF',
@@ -367,7 +368,7 @@ export const StaggeredMenu = ({
       <header className="staggered-menu-header" aria-label="Main navigation header">
         <div className="sm-logo" aria-label="Logo">
           <img
-            src={logoUrl || '/icons/ufuq-logo.webp'}
+            src={logoUrl || getImagePath('/icons/ufuq-logo.webp')}
             alt="Logo"
             className="sm-logo-img"
             draggable={false}
