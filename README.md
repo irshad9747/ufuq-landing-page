@@ -76,8 +76,11 @@ The built files will be in the `dist` folder.
 
 ## 🌐 Deployment
 
-This app can be deployed to:
+This app is automatically deployed to GitHub Pages:
+- **Live Site**: https://irshad9747.github.io/ufuq-landing-page/
+- **GitHub Actions**: Automatically builds and deploys on every push to `main` branch
+
+It can also be deployed to:
 - **Vercel** - `vercel`
 - **Netlify** - `netlify deploy`
-- **GitHub Pages** - After building, deploy the `dist` folder
 
