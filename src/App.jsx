@@ -5,6 +5,7 @@ import Objectives from './components/Objectives'
 import Events from './components/Events'
 import Speakers from './components/Speakers'
 import RecentActivity from './components/RecentActivity'
+import QuoteSection from './components/QuoteSection'
 import Footer from './components/Footer'
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
         <Events />
         <Speakers />
         <RecentActivity />
+        <QuoteSection />
       </main>
       <Footer />
     </div>

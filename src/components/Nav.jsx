@@ -4,7 +4,7 @@ import { getImagePath } from '../utils/imagePath'
 import StaggeredMenu from './StaggeredMenu'
 import GradualBlur from './GradualBlur'
 
-const SECTIONS = ['home', 'about', 'events', 'speakers', 'contact']
+const SECTIONS = ['home', 'about', 'events', 'speakers', 'recent-activity', 'contact']
 const SCROLL_OFFSET = 100
 
 const Nav = () => {
@@ -70,6 +70,7 @@ const Nav = () => {
     { id: 'about', label: 'About' },
     { id: 'events', label: 'Event' },
     { id: 'speakers', label: 'Speaker' },
+    { id: 'recent-activity', label: 'Recent Activity' },
     { id: 'contact', label: 'Contact' },
   ], [])
 
