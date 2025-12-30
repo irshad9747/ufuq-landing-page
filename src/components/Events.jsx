@@ -1,6 +1,12 @@
-import { useState, memo, useMemo } from 'react'
+import { useState, memo, useMemo, useEffect, useRef, useCallback } from 'react'
 import { useReveal } from '../hooks/useReveal'
-import EventCarousel from './EventCarousel'
+import { throttleRAF } from '../utils/throttle'
+import { motion, useMotionValue } from 'framer-motion'
+
+const DRAG_BUFFER = 50
+const VELOCITY_THRESHOLD = 500
+const GAP = 16
+const SPRING_OPTIONS = { type: 'spring', stiffness: 300, damping: 30 }
 
 const EVENTS = [
     {
@@ -64,6 +70,11 @@ const FILTERS = ['All Event', 'Pre Event', 'Panel Discussion', 'Keynote']
 const Events = () => {
   const headerRef = useReveal()
   const [activeFilter, setActiveFilter] = useState('All Event')
+  const containerRef = useRef(null)
+  const [itemWidth, setItemWidth] = useState(280)
+  const [position, setPosition] = useState(0)
+  const x = useMotionValue(0)
+  const [isAnimating, setIsAnimating] = useState(false)
 
   const filteredEvents = useMemo(() => 
     activeFilter === 'All Event' 
@@ -71,6 +82,95 @@ const Events = () => {
       : EVENTS.filter(event => event.type === activeFilter),
     [activeFilter]
   )
+
+  // Update item width on resize (mobile only) - optimized with throttling
+  useEffect(() => {
+    const updateWidth = throttleRAF(() => {
+      if (containerRef.current && window.innerWidth < 768) {
+        const containerWidth = containerRef.current.offsetWidth
+        setItemWidth(containerWidth - 48) // 24px padding on each side
+      }
+    })
+    
+    updateWidth()
+    window.addEventListener('resize', updateWidth, { passive: true })
+    return () => {
+      updateWidth.cancel()
+      window.removeEventListener('resize', updateWidth)
+    }
+  }, [])
+
+  // Reset position when filter changes
+  useEffect(() => {
+    setPosition(0)
+    x.set(0)
+  }, [activeFilter, x])
+
+  const trackItemOffset = itemWidth + GAP
+
+  const handleAnimationStart = () => {
+    setIsAnimating(true)
+  }
+
+  const handleAnimationComplete = () => {
+    setIsAnimating(false)
+  }
+
+  const handleDragEnd = (_, info) => {
+    const { offset, velocity } = info
+    const direction =
+      offset.x < -DRAG_BUFFER || velocity.x < -VELOCITY_THRESHOLD
+        ? 1
+        : offset.x > DRAG_BUFFER || velocity.x > VELOCITY_THRESHOLD
+          ? -1
+          : 0
+
+    if (direction === 0) return
+
+    setPosition(prev => {
+      const next = prev + direction
+      const max = Math.max(0, filteredEvents.length - 1)
+      return Math.max(0, Math.min(next, max))
+    })
+  }
+
+  const dragConstraints = {
+    left: -trackItemOffset * Math.max(filteredEvents.length - 1, 0),
+    right: 0
+  }
+
+  const canGoPrev = position > 0
+  const canGoNext = position < filteredEvents.length - 1
+
+  const goToPrev = useCallback(() => {
+    if (canGoPrev) {
+      setPosition(prev => Math.max(0, prev - 1))
+    }
+  }, [canGoPrev])
+
+  const goToNext = useCallback(() => {
+    if (canGoNext) {
+      setPosition(prev => Math.min(filteredEvents.length - 1, prev + 1))
+    }
+  }, [canGoNext, filteredEvents.length])
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (window.innerWidth < 768) {
+        if (e.key === 'ArrowLeft') {
+          e.preventDefault()
+          goToPrev()
+        } else if (e.key === 'ArrowRight') {
+          e.preventDefault()
+          goToNext()
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [goToPrev, goToNext])
 
   return (
     <section id="events" className="py-20 px-6 max-w-7xl mx-auto">
@@ -99,12 +199,81 @@ const Events = () => {
         ))}
       </div>
 
-      {/* Mobile Carousel */}
-      <div className="block md:hidden">
-        <EventCarousel events={filteredEvents} activeFilter={activeFilter} />
+      {/* Mobile: Horizontal Scrollable Carousel */}
+      <div 
+        ref={containerRef}
+        className="block md:hidden relative overflow-hidden"
+        style={{ padding: '0 12px' }}
+      >
+        {/* Navigation Buttons */}
+        {filteredEvents.length > 1 && (
+          <>
+            <button
+              onClick={goToPrev}
+              disabled={!canGoPrev}
+              className={`carousel-nav-btn carousel-nav-btn-prev ${!canGoPrev ? 'disabled' : ''}`}
+              aria-label="Previous event"
+              type="button"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <button
+              onClick={goToNext}
+              disabled={!canGoNext}
+              className={`carousel-nav-btn carousel-nav-btn-next ${!canGoNext ? 'disabled' : ''}`}
+              aria-label="Next event"
+              type="button"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </>
+        )}
+        <motion.div
+          className="flex gap-4"
+          drag={isAnimating ? false : 'x'}
+          dragConstraints={dragConstraints}
+          dragElastic={0.1}
+          style={{
+            x,
+            cursor: 'grab',
+            userSelect: 'none',
+            WebkitUserSelect: 'none'
+          }}
+          onDragStart={(e) => {
+            if (e.target.tagName === 'IMG') {
+              e.preventDefault()
+            }
+          }}
+          onDragEnd={handleDragEnd}
+          animate={{ x: -(position * trackItemOffset) }}
+          transition={SPRING_OPTIONS}
+          onAnimationStart={handleAnimationStart}
+          onAnimationComplete={handleAnimationComplete}
+          role="region"
+          aria-label="Events carousel"
+          aria-live="polite"
+          whileDrag={{ cursor: 'grabbing' }}
+        >
+          {filteredEvents.map((event, index) => (
+            <div
+              key={`${event.title}-${event.date}`}
+              style={{
+                width: itemWidth,
+                flexShrink: 0,
+                minWidth: itemWidth
+              }}
+            >
+              <EventCard event={event} index={index} />
+            </div>
+          ))}
+        </motion.div>
       </div>
 
-      {/* Desktop Grid */}
+      {/* Desktop: Grid Layout */}
       <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredEvents.map((event, index) => (
           <EventCard key={`${event.title}-${event.date}`} event={event} index={index} />
@@ -115,11 +284,11 @@ const Events = () => {
 }
 
 export const EventCard = memo(({ event, index }) => {
-  const ref = useReveal()
   const uniqueId = `event-${index}`
+  const isHackathon = event.title === 'Hackathon for Social Good'
 
   return (
-    <div ref={ref} className="pro-card rounded-2xl overflow-hidden reveal group hover:border-indigo-500/40 h-full flex flex-col">
+    <div className="pro-card rounded-2xl overflow-hidden group hover:border-indigo-500/40 h-full flex flex-col">
       {/* Header with Gradient */}
       <div className="event-card-header relative px-6 py-6 bg-gradient-to-br from-indigo-600/25 via-purple-600/20 to-transparent border-b border-white/10">
         {/* Wavy Pattern Background */}
@@ -196,6 +365,24 @@ export const EventCard = memo(({ event, index }) => {
             <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mb-3"></div>
             <p className="text-indigo-300 font-bold text-sm">{event.duration}</p>
           </>
+        )}
+
+        {/* Hackathon Link - Pushed to bottom */}
+        {isHackathon && (
+          <div className="mt-auto pt-4">
+            <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mb-4"></div>
+            <a 
+              href="https://ufuq.siokerala.org/hackathon" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="w-full px-4 py-2.5 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold text-sm text-center hover:from-indigo-500 hover:to-purple-500 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-indigo-500/40 flex items-center justify-center gap-2"
+            >
+              View Hackathon Details
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+              </svg>
+            </a>
+          </div>
         )}
       </div>
     </div>

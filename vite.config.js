@@ -5,5 +5,17 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   base: '/ufuq-landing-page/',
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom'],
+          'animation-vendor': ['framer-motion'],
+          'animation-vendor-legacy': ['gsap']
+        }
+      }
+    },
+    chunkSizeWarningLimit: 1000
+  }
 })
 

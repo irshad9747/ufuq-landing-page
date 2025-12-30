@@ -1,3 +1,4 @@
+import React from 'react'
 import { useReveal } from '../hooks/useReveal'
 
 const Objectives = () => {
@@ -71,7 +72,7 @@ const Objectives = () => {
   )
 }
 
-const ObjectiveCard = ({ objective, colorClasses }) => {
+const ObjectiveCard = React.memo(({ objective, colorClasses }) => {
   const ref = useReveal()
 
   return (
@@ -83,7 +84,9 @@ const ObjectiveCard = ({ objective, colorClasses }) => {
       <p className="text-gray-400 text-sm leading-relaxed group-hover:text-gray-300 transition-colors">{objective.description}</p>
     </div>
   )
-}
+})
+
+ObjectiveCard.displayName = 'ObjectiveCard'
 
 export default Objectives
 

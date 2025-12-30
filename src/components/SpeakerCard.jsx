@@ -1,11 +1,8 @@
 import { memo } from 'react'
-import { useReveal } from '../hooks/useReveal'
 
 const SpeakerCard = ({ speaker }) => {
-  const ref = useReveal()
-
   return (
-    <div ref={ref} className="pro-card p-8 rounded-2xl reveal group hover:scale-[1.02] transition-all duration-300 flex flex-col items-center h-full">
+    <div className="pro-card p-8 rounded-2xl group hover:scale-[1.02] transition-all duration-300 flex flex-col items-center h-full">
       {/* Image Container with Enhanced Styling */}
       <div className="relative mb-6">
         <div className="relative w-28 h-28 md:w-32 md:h-32">

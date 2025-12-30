@@ -52,10 +52,11 @@
   border: none;
   cursor: pointer;
   padding: 0.5em;
-  color: inherit;
+  color: #fff;
   font-family: inherit;
   font-size: 1rem;
   transition: color 0.3s ease;
+  opacity: 1;
 }
 
 .sm-toggle:focus,
@@ -89,19 +90,33 @@
   align-items: center;
   justify-content: center;
   will-change: transform;
+  overflow: hidden;
+  opacity: 1;
 }
 
 .sm-icon-line {
   position: absolute;
-  width: 18px;
+  width: 24px;
   height: 2px;
   background: currentColor;
   border-radius: 1px;
   transition: background 0.3s ease;
+  left: 50%;
+  margin-left: -12px;
+  opacity: 1;
 }
 
-.sm-icon-line-v {
-  transform: rotate(90deg);
+.sm-icon-line-1 {
+  top: 6px;
+}
+
+.sm-icon-line-2 {
+  top: 50%;
+  margin-top: -1px;
+}
+
+.sm-icon-line-3 {
+  bottom: 6px;
 }
 
 .sm-prelayers {

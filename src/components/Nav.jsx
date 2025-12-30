@@ -20,18 +20,18 @@ const Nav = () => {
   // Track active section on scroll
   useEffect(() => {
     const handleScroll = () => {
-        const scrollPosition = window.scrollY + SCROLL_OFFSET
+      const scrollPosition = window.scrollY + SCROLL_OFFSET
 
       for (const section of SECTIONS) {
         const element = document.getElementById(section)
-          if (element) {
-            const { offsetTop, offsetHeight } = element
+        if (element) {
+          const { offsetTop, offsetHeight } = element
           if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
             setActiveSection(section)
-              break
-            }
+            break
           }
         }
+      }
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true })
@@ -70,7 +70,7 @@ const Nav = () => {
     { id: 'about', label: 'About' },
     { id: 'events', label: 'Event' },
     { id: 'speakers', label: 'Speaker' },
-    { id: 'recent-activity', label: 'Recent Activity' },
+    { id: 'recent-activity', label: 'Past Events' },
     { id: 'contact', label: 'Contact' },
   ], [])
 
@@ -147,7 +147,7 @@ const Nav = () => {
           items={menuItems}
           displaySocials={false}
           displayItemNumbering={true}
-          menuButtonColor="#9ca3af"
+          menuButtonColor="#fff"
           openMenuButtonColor="#fff"
           changeMenuColorOnOpen={true}
           colors={['#03030a', '#1a1a2e', '#16213e']}

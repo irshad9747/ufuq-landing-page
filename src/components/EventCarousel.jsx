@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { motion, useMotionValue } from 'framer-motion'
 import { EventCard } from './Events'
 
@@ -72,6 +72,36 @@ export default function EventCarousel({ events, activeFilter }) {
   }
 
   const activeIndex = Math.min(position, filteredEvents.length - 1)
+  const canGoPrev = position > 0
+  const canGoNext = position < filteredEvents.length - 1
+
+  const goToPrev = useCallback(() => {
+    if (canGoPrev) {
+      setPosition(prev => Math.max(0, prev - 1))
+    }
+  }, [canGoPrev])
+
+  const goToNext = useCallback(() => {
+    if (canGoNext) {
+      setPosition(prev => Math.min(filteredEvents.length - 1, prev + 1))
+    }
+  }, [canGoNext, filteredEvents.length])
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault()
+        goToPrev()
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault()
+        goToNext()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [goToPrev, goToNext])
 
   if (filteredEvents.length === 0) return null
 
@@ -82,13 +112,42 @@ export default function EventCarousel({ events, activeFilter }) {
       style={{
         width: '100%',
         maxWidth: '100%',
-        padding: '0 12px'
+        padding: '0 12px',
+        position: 'relative'
       }}
     >
+      {/* Navigation Buttons */}
+      {filteredEvents.length > 1 && (
+        <>
+          <button
+            onClick={goToPrev}
+            disabled={!canGoPrev}
+            className={`carousel-nav-btn carousel-nav-btn-prev ${!canGoPrev ? 'disabled' : ''}`}
+            aria-label="Previous event"
+            type="button"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <button
+            onClick={goToNext}
+            disabled={!canGoNext}
+            className={`carousel-nav-btn carousel-nav-btn-next ${!canGoNext ? 'disabled' : ''}`}
+            aria-label="Next event"
+            type="button"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </>
+      )}
       <motion.div
         className="carousel-track"
         drag={isAnimating ? false : 'x'}
         dragConstraints={dragConstraints}
+        dragElastic={0.1}
         style={{
           display: 'flex',
           gap: `${GAP}px`,
@@ -101,6 +160,7 @@ export default function EventCarousel({ events, activeFilter }) {
         onAnimationComplete={handleAnimationComplete}
         role="region"
         aria-label="Events carousel"
+        aria-live="polite"
       >
         {filteredEvents.map((event, index) => (
           <div
@@ -123,7 +183,7 @@ export default function EventCarousel({ events, activeFilter }) {
         <div className="carousel-indicators-container">
           <div className="carousel-indicators">
             {filteredEvents.map((_, index) => (
-              <motion.div
+              <motion.button
                 key={index}
                 className={`carousel-indicator ${activeIndex === index ? 'active' : 'inactive'}`}
                 animate={{
@@ -133,6 +193,7 @@ export default function EventCarousel({ events, activeFilter }) {
                 transition={{ duration: 0.15 }}
                 role="button"
                 aria-label={`Go to event ${index + 1}`}
+                aria-current={activeIndex === index ? 'true' : 'false'}
                 tabIndex={0}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {

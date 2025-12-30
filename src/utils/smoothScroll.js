@@ -6,13 +6,17 @@
 export const smoothScrollTo = (elementId, offset = 80) => {
   // Validate input
   if (!elementId || typeof elementId !== 'string') {
-    console.warn('Invalid elementId provided to smoothScrollTo')
+    if (import.meta.env.DEV) {
+      console.warn('Invalid elementId provided to smoothScrollTo')
+    }
     return
   }
   
   // Sanitize: only allow alphanumeric, hyphens, and underscores
   if (!/^[a-zA-Z0-9_-]+$/.test(elementId)) {
-    console.warn('Invalid characters in elementId')
+    if (import.meta.env.DEV) {
+      console.warn('Invalid characters in elementId')
+    }
     return
   }
   

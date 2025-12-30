@@ -4,13 +4,13 @@ const QuoteSection = () => {
   const ref = useReveal()
 
   return (
-    <section className="py-20 px-6 max-w-7xl mx-auto">
+    <section className="pb-20 px-6 max-w-7xl mx-auto">
       <div ref={ref} className="relative reveal flex justify-center">
         <div className="relative w-full max-w-2xl">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 bg-indigo-600/20 blur-[100px] rounded-full pointer-events-none animate-pulse"></div>
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1/2 h-1/2 bg-purple-600/10 blur-[60px] rounded-full pointer-events-none"></div>
           
-          <div className="pro-card p-8 md:p-10 rounded-3xl relative z-10 hover:scale-[1.02] transition-transform duration-500">
+          <div className="pro-card p-8 md:p-10 rounded-tr-3xl rounded-br-3xl rounded-bl-3xl relative z-10 hover:scale-[1.02] transition-transform duration-500">
             <div className="font-amiri text-2xl md:text-3xl text-right text-indigo-100 mb-4 leading-loose opacity-90" dir="rtl">
               "سَنُرِيهِمْ آيَاتِنَا فِي الْآفَاقِ وَفِي أَنفُسِهِمْ حَتَّى يَتَبَيَّنَ لَهُمْ أَنَّهُ الْحَقُّ"
             </div>
@@ -31,4 +31,3 @@ const QuoteSection = () => {
 }
 
 export default QuoteSection
-
