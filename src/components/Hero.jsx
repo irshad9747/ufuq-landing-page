@@ -40,6 +40,7 @@ const Hero = () => {
   const transitionTimeoutRef = useRef(null) // Track transition timeout
   const pendingFrameRef = useRef(null) // Track pending frame change
   const loadingAbortRef = useRef(null) // Track loading abort controller
+  const [cubeActivated, setCubeActivated] = useState(false) // Track if cube has been clicked to activate interactive mode
 
   // Helper function to get PNG fallback path
   const getPNGFallbackPath = useCallback((frameIndex) => {
@@ -73,26 +74,40 @@ const Hero = () => {
     }
   }, [getFramePath, getPNGFallbackPath, useWebP])
 
+  // Get cube.webp path
+  const cubeWebpPath = useMemo(() => {
+    return getImagePath('/icons/cube.webp')
+  }, [])
+
   // Memoize frame paths for both images
   // During loading phase, use loadingFrame; during interactive phase, use displayFrame
   // Mobile users: Return empty string to prevent any image loading
+  // Show cube.webp initially if not activated
   const framePath = useMemo(() => {
+    // If cube not activated, show static cube.webp
+    if (!cubeActivated) return cubeWebpPath
     // Check desktop status - use direct check to avoid race condition with state initialization
     const isDesktopDevice = isDesktopUser || isDesktop()
-    if (!isDesktopDevice) return '' // Mobile: no image loading
+    if (!isDesktopDevice) return cubeWebpPath // Mobile: show static cube
     const frameToUse = isInteractive ? displayFrame : loadingFrame
     return getFramePath(frameToUse)
-  }, [isDesktopUser, displayFrame, loadingFrame, isInteractive, getFramePath])
+  }, [cubeActivated, cubeWebpPath, isDesktopUser, displayFrame, loadingFrame, isInteractive, getFramePath])
   const nextFramePath = useMemo(() => {
+    // If cube not activated, return empty (no crossfade needed)
+    if (!cubeActivated) return ''
     // Check desktop status - use direct check to avoid race condition with state initialization
     const isDesktopDevice = isDesktopUser || isDesktop()
     if (!isDesktopDevice) return '' // Mobile: no image loading
     return getFramePath(currentFrame)
-  }, [isDesktopUser, currentFrame, getFramePath])
+  }, [cubeActivated, isDesktopUser, currentFrame, getFramePath])
 
   // Preload initial frame immediately and synchronously to prevent blinking
   // Skip entirely for mobile users - they don't need the cube
+  // Only start loading when cube is activated
   useEffect(() => {
+    // Don't start loading until cube is activated
+    if (!cubeActivated) return
+    
     // Check if mobile early - skip all frame loading
     const desktop = isDesktop()
     setIsDesktopUser(desktop)
@@ -118,11 +133,15 @@ const Hero = () => {
         setDisplayFrame(initialFrame)
         setLoadingFrame(initialFrame)
       })
-  }, [preloadWithFallback])
+  }, [cubeActivated, preloadWithFallback])
 
   // Sequential frame loading: Load and display each frame one by one
   // Desktop only - mobile users skip this entirely
+  // Only start loading when cube is activated
   useEffect(() => {
+    // Don't start loading until cube is activated
+    if (!cubeActivated) return
+    
     // Check desktop status - use direct check as fallback to avoid race condition
     const isDesktopDevice = isDesktopUser || isDesktop()
     // Skip for mobile users - no frame loading needed
@@ -220,7 +239,7 @@ const Hero = () => {
     return () => {
       abortController.abort()
     }
-  }, [isDesktopUser, initialFrameLoaded, totalFrames, preloadWithFallback, getFramePath])
+  }, [cubeActivated, isDesktopUser, initialFrameLoaded, totalFrames, preloadWithFallback, getFramePath])
 
   // Preload nearby frames as user moves (desktop only - mobile doesn't load frames)
   // This effect is now desktop-only since mobile users never enter interactive mode
@@ -264,13 +283,25 @@ const Hero = () => {
   // Handle primary image load
   const handleImageLoad = useCallback(() => {
     if (imgRef.current) {
+      // If showing static cube, ensure it's visible
+      if (!cubeActivated) {
+        imgRef.current.style.opacity = '0.85'
+      } else {
       imgRef.current.style.opacity = '0.85'
       // Mark initial frame as loaded if this is the initial frame
       if (displayFrame === 71 && !initialFrameLoaded) {
         setInitialFrameLoaded(true)
       }
     }
-  }, [displayFrame, initialFrameLoaded])
+    }
+  }, [displayFrame, initialFrameLoaded, cubeActivated])
+
+  // Handle cube click to activate interactive mode
+  const handleCubeClick = useCallback(() => {
+    if (!cubeActivated) {
+      setCubeActivated(true)
+    }
+  }, [cubeActivated])
 
   // Crossfade transition logic with glitch prevention
   const performCrossfade = useCallback(() => {
@@ -523,51 +554,58 @@ const Hero = () => {
                   ref={imgRef}
                   src={framePath}
                   alt="Rotating Cube"
-                  className={`w-full h-auto max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl absolute ${isInteractive ? 'cube-alive' : ''}`}
+                  draggable="false"
+                  className={`w-full h-auto max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl absolute cube-alive ${!cubeActivated ? 'cursor-pointer hover:opacity-100' : ''}`}
                   style={{
-                    opacity: initialFrameLoaded ? 0.85 : 0,
+                    opacity: cubeActivated ? (initialFrameLoaded ? 0.85 : 0) : 0.85,
                     imageRendering: 'auto',
-                    willChange: 'opacity',
+                    willChange: 'opacity, transform, filter',
                     backfaceVisibility: 'hidden',
-                    transform: 'translateZ(0)',
                     transition: isInteractive ? 'opacity 0.1s cubic-bezier(0.4, 0, 0.2, 1)' : 'opacity 0.3s ease-out',
                     WebkitBackfaceVisibility: 'hidden',
-                    WebkitTransform: 'translateZ(0)',
                     WebkitFontSmoothing: 'antialiased',
                     MozOsxFontSmoothing: 'grayscale',
-                    pointerEvents: isInteractive ? 'auto' : 'none'
+                    WebkitUserDrag: 'none',
+                    userSelect: 'none',
+                    pointerEvents: isInteractive ? 'auto' : (cubeActivated ? 'none' : 'auto')
                   }}
                   onLoad={handleImageLoad}
                   onError={handleImageError}
+                  onClick={handleCubeClick}
+                  onDragStart={(e) => e.preventDefault()}
                   loading="eager"
                   decoding="async"
                 />
-                {/* Secondary image for crossfade */}
+                {/* Secondary image for crossfade - only show when cube is activated */}
+                {cubeActivated && (
                 <img
                   ref={nextImgRef}
                   src={nextFramePath}
                   alt=""
+                    draggable="false"
                   className={`w-full h-auto max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl ${isInteractive ? 'cube-alive' : ''}`}
                   style={{
                     opacity: 0,
                     imageRendering: 'auto',
-                    willChange: 'opacity',
+                      willChange: 'opacity, transform, filter',
                     backfaceVisibility: 'hidden',
-                    transform: 'translateZ(0)',
                     transition: 'opacity 0.1s cubic-bezier(0.4, 0, 0.2, 1)',
                     pointerEvents: 'none',
                     WebkitBackfaceVisibility: 'hidden',
-                    WebkitTransform: 'translateZ(0)',
                     WebkitFontSmoothing: 'antialiased',
-                    MozOsxFontSmoothing: 'grayscale'
+                      MozOsxFontSmoothing: 'grayscale',
+                      WebkitUserDrag: 'none',
+                      userSelect: 'none'
                   }}
                   onLoad={handleNextImageLoad}
+                    onDragStart={(e) => e.preventDefault()}
                   loading="eager"
                   decoding="async"
                 />
+                )}
                 
                 {/* Loading Progress Indicator (shown during preload) - Below sprite */}
-                {!isInteractive && (
+                {cubeActivated && !isInteractive && (
                   <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 px-4 py-2 rounded-full bg-black/50 backdrop-blur-sm border border-white/10">
                     <div className="flex items-center gap-3">
                       <div className="w-32 h-1.5 bg-white/10 rounded-full overflow-hidden">

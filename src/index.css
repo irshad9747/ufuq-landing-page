@@ -337,16 +337,16 @@ button {
 /* Floating Animation */
 @keyframes float {
   0%, 100% {
-    transform: translateY(0px) rotate(0deg);
+    transform: scale(0.729) translateY(0px) rotate(0deg) translateZ(0);
   }
   25% {
-    transform: translateY(-20px) rotate(2deg);
+    transform: scale(0.729) translateY(-20px) rotate(2deg) translateZ(0);
   }
   50% {
-    transform: translateY(-10px) rotate(0deg);
+    transform: scale(0.729) translateY(-10px) rotate(0deg) translateZ(0);
   }
   75% {
-    transform: translateY(-25px) rotate(-2deg);
+    transform: scale(0.729) translateY(-25px) rotate(-2deg) translateZ(0);
   }
 }
 
