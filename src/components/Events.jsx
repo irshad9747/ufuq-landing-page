@@ -288,7 +288,7 @@ export const EventCard = memo(({ event, index }) => {
   const isHackathon = event.title === 'Hackathon for Social Good'
 
   return (
-    <div className="pro-card rounded-2xl overflow-hidden group hover:border-indigo-500/40 h-full flex flex-col">
+    <div className="pro-card rounded-2xl overflow-hidden group hover:border-indigo-500/40 active:border-indigo-500/60 active:scale-[0.98] touch-manipulation h-full flex flex-col select-none transition-all duration-200">
       {/* Header with Gradient */}
       <div className="event-card-header relative px-6 py-6 bg-gradient-to-br from-indigo-600/25 via-purple-600/20 to-transparent border-b border-white/10">
         {/* Wavy Pattern Background */}
@@ -375,7 +375,7 @@ export const EventCard = memo(({ event, index }) => {
               href="https://ufuq.siokerala.org/hackathon" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="w-full px-4 py-2.5 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold text-sm text-center hover:from-indigo-500 hover:to-purple-500 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-indigo-500/40 flex items-center justify-center gap-2"
+              className="w-full px-4 py-2.5 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold text-sm text-center hover:from-indigo-500 hover:to-purple-500 active:from-indigo-700 active:to-purple-700 active:scale-95 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-indigo-500/40 flex items-center justify-center gap-2 touch-manipulation min-h-[44px]"
             >
               View Hackathon Details
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

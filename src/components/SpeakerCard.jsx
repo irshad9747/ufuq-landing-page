@@ -2,7 +2,7 @@ import { memo } from 'react'
 
 const SpeakerCard = ({ speaker }) => {
   return (
-    <div className="pro-card p-8 rounded-2xl group hover:scale-[1.02] transition-all duration-300 flex flex-col items-center h-full">
+    <div className="pro-card p-8 rounded-2xl group hover:scale-[1.02] active:scale-[0.98] touch-manipulation transition-all duration-300 flex flex-col items-center h-full select-none">
       {/* Image Container with Enhanced Styling */}
       <div className="relative mb-6">
         <div className="relative w-28 h-28 md:w-32 md:h-32">
@@ -10,7 +10,7 @@ const SpeakerCard = ({ speaker }) => {
           <div className={`absolute inset-0 rounded-full bg-gradient-to-br ${speaker.gradient} opacity-20 blur-xl group-hover:opacity-30 transition-opacity duration-300`}></div>
           
           {/* Image Frame */}
-          <div className="relative w-full h-full rounded-full p-1 bg-gradient-to-br from-indigo-500/50 via-purple-500/30 to-transparent group-hover:from-indigo-500/70 group-hover:via-purple-500/50 transition-all duration-300">
+          <div className="relative w-full h-full rounded-full p-1 bg-gradient-to-br from-indigo-500/50 via-purple-500/30 to-transparent group-hover:from-indigo-500/70 group-hover:via-purple-500/50 active:from-indigo-500/80 active:via-purple-500/60 transition-all duration-300">
             <img 
               src={speaker.image} 
               alt={speaker.name}

@@ -106,7 +106,7 @@ const Nav = () => {
           <a 
             href="#home" 
             onClick={(e) => handleNavClick(e, 'home')} 
-            className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded"
+            className="flex items-center gap-2 focus:outline-none"
             aria-label="Go to home section"
           >
             <img src={getImagePath('/icons/ufuq-logo.webp')} alt="UFUQ Logo" className="h-[50px]" />
@@ -119,7 +119,7 @@ const Nav = () => {
                 key={link.id}
                 href={`#${link.id}`}
                 onClick={(e) => handleNavClick(e, link.id)}
-                className={`hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded px-2 ${
+                className={`hover:text-white transition-colors focus:outline-none px-2 ${
                   activeSection === link.id ? 'text-white' : ''
                 }`}
                 aria-current={activeSection === link.id ? 'page' : undefined}
@@ -132,7 +132,7 @@ const Nav = () => {
           {/* Register Button - Right */}
           <a 
             href="#" 
-            className="btn-primary px-6 py-2.5 rounded-full text-white font-semibold tracking-wide focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-[#03030a]"
+            className="btn-primary px-6 py-2.5 rounded-full text-white font-semibold tracking-wide focus:outline-none"
             aria-label="Register for UFUQ 2026"
           >
             Register Now

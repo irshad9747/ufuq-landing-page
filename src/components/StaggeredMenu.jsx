@@ -26,9 +26,6 @@ export const StaggeredMenu = ({
   const panelRef = useRef(null);
   const preLayersRef = useRef(null);
   const preLayerElsRef = useRef([]);
-  const line1Ref = useRef(null);
-  const line2Ref = useRef(null);
-  const line3Ref = useRef(null);
   const iconRef = useRef(null);
   const textInnerRef = useRef(null);
   const textWrapRef = useRef(null);
@@ -36,7 +33,6 @@ export const StaggeredMenu = ({
 
   const openTlRef = useRef(null);
   const closeTweenRef = useRef(null);
-  const spinTweenRef = useRef(null);
   const textCycleAnimRef = useRef(null);
   const colorTweenRef = useRef(null);
   const toggleBtnRef = useRef(null);
@@ -47,11 +43,8 @@ export const StaggeredMenu = ({
     const ctx = gsap.context(() => {
       const panel = panelRef.current;
       const preContainer = preLayersRef.current;
-      const line1 = line1Ref.current;
-      const line2 = line2Ref.current;
-      const line3 = line3Ref.current;
       const icon = iconRef.current;
-      if (!panel || !line1 || !line2 || !line3 || !icon) return;
+      if (!panel || !icon) return;
 
       let preLayers = [];
       if (preContainer) {
@@ -61,10 +54,8 @@ export const StaggeredMenu = ({
 
       const offscreen = position === 'left' ? -100 : 100;
       gsap.set([panel, ...preLayers], { xPercent: offscreen });
-      gsap.set(line1, { transformOrigin: '50% 50%', y: -6, rotate: 0, opacity: 1, scale: 1 });
-      gsap.set(line2, { transformOrigin: '50% 50%', y: 0, rotate: 0, opacity: 1, scale: 1 });
-      gsap.set(line3, { transformOrigin: '50% 50%', y: 6, rotate: 0, opacity: 1, scale: 1 });
-      gsap.set(icon, { rotate: 0, transformOrigin: '50% 50%' });
+      // Reset icon state - CSS handles the animation now
+      icon.classList.remove('is-active');
       if (toggleBtnRef.current) gsap.set(toggleBtnRef.current, { color: menuButtonColor });
     });
     return () => ctx.revert();
@@ -231,37 +222,14 @@ export const StaggeredMenu = ({
   }, [position]);
 
   const animateIcon = useCallback(opening => {
-    const line1 = line1Ref.current;
-    const line2 = line2Ref.current;
-    const line3 = line3Ref.current;
     const icon = iconRef.current;
-    if (!line1 || !line2 || !line3 || !icon) return;
-    spinTweenRef.current?.kill();
+    if (!icon) return;
     
+    // Toggle the is-active class for CSS-based morphing animation
     if (opening) {
-      // Transform hamburger to X with part hidden
-      const tl = gsap.timeline();
-      // First, move lines to center and rotate to form X
-      tl.to(line1, { y: 0, rotate: 45, duration: 0.25, ease: 'power2.out' }, 0);
-      tl.to(line2, { opacity: 0, duration: 0.15, ease: 'power2.out' }, 0);
-      tl.to(line3, { y: 0, rotate: -45, duration: 0.25, ease: 'power2.out' }, 0);
-      // Then scale up the X so part extends beyond container (hidden by overflow)
-      tl.to([line1, line3], { scale: 1.4, duration: 0.2, ease: 'power2.out' }, 0.2);
-      // Rotate the entire icon container slightly for dynamic effect
-      tl.to(icon, { rotate: 90, duration: 0.4, ease: 'power2.out' }, 0.25);
-      spinTweenRef.current = tl;
+      icon.classList.add('is-active');
     } else {
-      // Transform X back to hamburger
-      const tl = gsap.timeline();
-      // Reset icon rotation first
-      tl.to(icon, { rotate: 0, duration: 0.3, ease: 'power2.out' }, 0);
-      // Reset scale
-      tl.to([line1, line3], { scale: 1, duration: 0.2, ease: 'power2.out' }, 0);
-      // Reset positions and rotations
-      tl.to(line1, { y: -6, rotate: 0, duration: 0.3, ease: 'power2.out' }, 0.2);
-      tl.to(line2, { opacity: 1, duration: 0.2, ease: 'power2.out' }, 0.2);
-      tl.to(line3, { y: 6, rotate: 0, duration: 0.3, ease: 'power2.out' }, 0.2);
-      spinTweenRef.current = tl;
+      icon.classList.remove('is-active');
     }
   }, []);
 
@@ -411,9 +379,9 @@ export const StaggeredMenu = ({
           type="button"
         >
           <span ref={iconRef} className="sm-icon" aria-hidden="true">
-            <span ref={line1Ref} className="sm-icon-line sm-icon-line-1" />
-            <span ref={line2Ref} className="sm-icon-line sm-icon-line-2" />
-            <span ref={line3Ref} className="sm-icon-line sm-icon-line-3" />
+            <span className="sm-icon-line sm-icon-line-1" />
+            <span className="sm-icon-line sm-icon-line-2" />
+            <span className="sm-icon-line sm-icon-line-3" />
           </span>
         </button>
       </header>

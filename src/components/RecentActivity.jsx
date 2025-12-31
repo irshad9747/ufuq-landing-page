@@ -217,7 +217,7 @@ const RecentActivity = () => {
                   minWidth: itemWidth
                 }}
               >
-                <div className="pro-card rounded-xl overflow-hidden group hover:scale-[1.02] transition-all duration-300">
+                <div className="pro-card rounded-xl overflow-hidden group hover:scale-[1.02] active:scale-[0.98] touch-manipulation transition-all duration-300 select-none">
                   {/* Image */}
                   <div className="relative h-48 overflow-hidden">
                     <img 
@@ -263,7 +263,7 @@ const RecentActivity = () => {
         {/* Desktop: Grid Layout */}
         <div className="hidden sm:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {activities.map((activity, index) => (
-            <div key={index} className="pro-card rounded-xl overflow-hidden group hover:scale-[1.02] transition-all duration-300">
+            <div key={index} className="pro-card rounded-xl overflow-hidden group hover:scale-[1.02] active:scale-[0.98] touch-manipulation transition-all duration-300 select-none">
               {/* Image */}
               <div className="relative h-48 overflow-hidden">
                 <img 

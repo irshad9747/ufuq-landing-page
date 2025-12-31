@@ -258,25 +258,59 @@ const Hero = () => {
   useEffect(() => {
     if (!isInteractive) return // Don't enable mouse control until all frames are loaded
     
-    let lastFrame = 71
+    let targetFrame = 71
+    let currentAnimatedFrame = 71
+    let animationFrameId = null
+    let isRunning = true
+    const lerpSpeed = 0.2 // Speed of interpolation (0-1, higher = faster response)
+    const minDiff = 0.01 // Minimum difference threshold
     
-    const handleMouseMove = throttleRAF((e) => {
-      // Calculate frame based on cursor X position
-      const cursorX = clamp(e.clientX / window.innerWidth, 0, 1)
-      const targetFrame = Math.floor(cursorX * totalFrames)
-      const clampedFrame = clamp(targetFrame, 0, totalFrames - 1)
+    const updateFrame = () => {
+      if (!isRunning) return
       
-      // Only update if frame actually changed (prevents unnecessary re-renders)
-      if (clampedFrame !== lastFrame) {
-        lastFrame = clampedFrame
+      // Smoothly interpolate current frame towards target frame
+      const diff = targetFrame - currentAnimatedFrame
+      const absDiff = Math.abs(diff)
+      
+      if (absDiff > minDiff) {
+        // Move towards target frame
+        currentAnimatedFrame += diff * lerpSpeed
+        const roundedFrame = Math.round(currentAnimatedFrame)
+        const clampedFrame = clamp(roundedFrame, 0, totalFrames - 1)
+        setCurrentFrame(clampedFrame)
+      } else {
+        // Close enough, snap to target
+        currentAnimatedFrame = targetFrame
+        const clampedFrame = clamp(Math.round(targetFrame), 0, totalFrames - 1)
         setCurrentFrame(clampedFrame)
       }
+      
+      // Always continue the animation loop (it will naturally slow down when close to target)
+      animationFrameId = requestAnimationFrame(updateFrame)
+    }
+    
+    // Start the continuous animation loop
+    animationFrameId = requestAnimationFrame(updateFrame)
+    
+    const handleMouseMove = throttleRAF((e) => {
+      // Calculate target frame based on cursor X position
+      const cursorX = clamp(e.clientX / window.innerWidth, 0, 1)
+      const newTargetFrame = Math.floor(cursorX * totalFrames)
+      const clampedTargetFrame = clamp(newTargetFrame, 0, totalFrames - 1)
+      
+      // Update target frame (animation loop will handle the transition)
+      targetFrame = clampedTargetFrame
     })
 
     window.addEventListener('mousemove', handleMouseMove, { passive: true })
     return () => {
+      isRunning = false
       handleMouseMove.cancel()
       window.removeEventListener('mousemove', handleMouseMove)
+      if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId)
+        animationFrameId = null
+      }
     }
   }, [totalFrames, isInteractive])
 
