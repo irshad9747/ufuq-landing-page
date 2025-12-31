@@ -100,7 +100,7 @@ const Nav = () => {
       />
 
       {/* Desktop Navigation */}
-      <nav className="hidden md:block fixed top-0 w-full z-[10000]" role="navigation" aria-label="Main navigation">
+      <nav className="hidden min-[935px]:block fixed top-0 w-full z-[10000]" role="navigation" aria-label="Main navigation">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           {/* Logo - Left */}
           <a 
@@ -141,7 +141,7 @@ const Nav = () => {
       </nav>
 
       {/* Mobile Staggered Menu */}
-      <div className="md:hidden">
+      <div className="max-[934px]:block min-[935px]:hidden">
         <StaggeredMenu
           position="right"
           items={menuItems}

@@ -81,46 +81,32 @@ const Hero = () => {
 
   // Memoize frame paths for both images
   // During loading phase, use loadingFrame; during interactive phase, use displayFrame
-  // Mobile users: Return empty string to prevent any image loading
   // Show cube.webp initially if not activated
   const framePath = useMemo(() => {
     // If cube not activated, show static cube.webp
     if (!cubeActivated) return cubeWebpPath
-    // Check desktop status - use direct check to avoid race condition with state initialization
-    const isDesktopDevice = isDesktopUser || isDesktop()
-    if (!isDesktopDevice) return cubeWebpPath // Mobile: show static cube
     const frameToUse = isInteractive ? displayFrame : loadingFrame
     return getFramePath(frameToUse)
-  }, [cubeActivated, cubeWebpPath, isDesktopUser, displayFrame, loadingFrame, isInteractive, getFramePath])
+  }, [cubeActivated, cubeWebpPath, displayFrame, loadingFrame, isInteractive, getFramePath])
   const nextFramePath = useMemo(() => {
     // If cube not activated, return empty (no crossfade needed)
     if (!cubeActivated) return ''
-    // Check desktop status - use direct check to avoid race condition with state initialization
-    const isDesktopDevice = isDesktopUser || isDesktop()
-    if (!isDesktopDevice) return '' // Mobile: no image loading
     return getFramePath(currentFrame)
-  }, [cubeActivated, isDesktopUser, currentFrame, getFramePath])
+  }, [cubeActivated, currentFrame, getFramePath])
 
   // Preload initial frame immediately and synchronously to prevent blinking
-  // Skip entirely for mobile users - they don't need the cube
   // Only start loading when cube is activated
   useEffect(() => {
     // Don't start loading until cube is activated
     if (!cubeActivated) return
     
-    // Check if mobile early - skip all frame loading
+    // Check desktop status for reference (but don't restrict mobile)
     const desktop = isDesktop()
     setIsDesktopUser(desktop)
     
-    // Mobile users: Skip all frame loading completely
-    if (!desktop) {
-      // Don't load anything for mobile - cube is hidden anyway
-      return
-    }
-    
     const initialFrame = 71
     
-    // Desktop only: Preload initial frame first - this is critical to prevent blinking
+    // Preload initial frame first - this is critical to prevent blinking
     preloadWithFallback(initialFrame)
       .then(() => {
         setInitialFrameLoaded(true)
@@ -136,16 +122,10 @@ const Hero = () => {
   }, [cubeActivated, preloadWithFallback])
 
   // Sequential frame loading: Load and display each frame one by one
-  // Desktop only - mobile users skip this entirely
   // Only start loading when cube is activated
   useEffect(() => {
     // Don't start loading until cube is activated
     if (!cubeActivated) return
-    
-    // Check desktop status - use direct check as fallback to avoid race condition
-    const isDesktopDevice = isDesktopUser || isDesktop()
-    // Skip for mobile users - no frame loading needed
-    if (!isDesktopDevice) return
     
     // Wait for initial frame to be loaded first
     if (!initialFrameLoaded) return
@@ -241,22 +221,18 @@ const Hero = () => {
     }
   }, [cubeActivated, isDesktopUser, initialFrameLoaded, totalFrames, preloadWithFallback, getFramePath])
 
-  // Preload nearby frames as user moves (desktop only - mobile doesn't load frames)
-  // This effect is now desktop-only since mobile users never enter interactive mode
+  // Preload nearby frames as user moves
   useEffect(() => {
-    // Mobile users never reach here, but double-check anyway
-    if (!isDesktopUser) return
-    
     if (isInteractive && !allFramesLoaded) {
       // Preload wider range to prevent blinking when user moves cursor
       imagePreloader.preloadFrameRange(currentFrame, totalFrames, 10, getFramePath)
     }
-  }, [isDesktopUser, isInteractive, allFramesLoaded, currentFrame, totalFrames, getFramePath])
+  }, [isInteractive, allFramesLoaded, currentFrame, totalFrames, getFramePath])
 
-  // Mouse move handler for cursor-controlled rotation with frame smoothing
+  // Mouse/touch move handler for cursor-controlled rotation with frame smoothing
   // Only active when interactive mode is enabled
   useEffect(() => {
-    if (!isInteractive) return // Don't enable mouse control until all frames are loaded
+    if (!isInteractive) return // Don't enable control until all frames are loaded
     
     let targetFrame = 71
     let currentAnimatedFrame = 71
@@ -292,9 +268,13 @@ const Hero = () => {
     // Start the continuous animation loop
     animationFrameId = requestAnimationFrame(updateFrame)
     
-    const handleMouseMove = throttleRAF((e) => {
-      // Calculate target frame based on cursor X position
-      const cursorX = clamp(e.clientX / window.innerWidth, 0, 1)
+    const handleMove = throttleRAF((e) => {
+      // Support both mouse and touch events
+      const clientX = e.clientX !== undefined ? e.clientX : (e.touches && e.touches[0] ? e.touches[0].clientX : 0)
+      if (clientX === 0) return
+      
+      // Calculate target frame based on cursor/touch X position
+      const cursorX = clamp(clientX / window.innerWidth, 0, 1)
       const newTargetFrame = Math.floor(cursorX * totalFrames)
       const clampedTargetFrame = clamp(newTargetFrame, 0, totalFrames - 1)
       
@@ -302,11 +282,13 @@ const Hero = () => {
       targetFrame = clampedTargetFrame
     })
 
-    window.addEventListener('mousemove', handleMouseMove, { passive: true })
+    window.addEventListener('mousemove', handleMove, { passive: true })
+    window.addEventListener('touchmove', handleMove, { passive: true })
     return () => {
       isRunning = false
-      handleMouseMove.cancel()
-      window.removeEventListener('mousemove', handleMouseMove)
+      handleMove.cancel()
+      window.removeEventListener('mousemove', handleMove)
+      window.removeEventListener('touchmove', handleMove)
       if (animationFrameId !== null) {
         cancelAnimationFrame(animationFrameId)
         animationFrameId = null
@@ -423,10 +405,10 @@ const Hero = () => {
   }, [useWebP])
 
   // Update next image when frame changes - use cached images if available
-  // Only active in interactive mode and desktop only
+  // Only active in interactive mode
   useEffect(() => {
-    // Skip if not desktop or not in interactive mode
-    if (!isDesktopUser || !isInteractive) return
+    // Skip if not in interactive mode
+    if (!isInteractive) return
     
     // Skip if transitioning or if frame hasn't changed
     if (currentFrame === displayFrame || !nextImgRef.current) return
@@ -574,8 +556,8 @@ const Hero = () => {
           </div>
 
           {/* New Section */}
-          <div ref={middleRef} className="flex items-center justify-center reveal delay-[200ms]">
-            <div className="relative w-full max-w-2xl lg:max-w-4xl xl:max-w-5xl hidden md:block">
+          <div ref={middleRef} className="hidden lg:flex items-center justify-center reveal delay-[200ms]">
+            <div className="relative w-full max-w-2xl lg:max-w-4xl xl:max-w-5xl">
               {/* Glow Background */}
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <div className="cube-glow"></div>
