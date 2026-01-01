@@ -94,7 +94,6 @@ const Nav = () => {
           {/* Logo - Left */}
           <a 
             href="#home" 
-            onClick={(e) => handleNavClick(e, 'home')} 
             className="flex items-center gap-2 focus:outline-none"
             aria-label="Go to home section"
           >
@@ -137,7 +136,6 @@ const Nav = () => {
           {/* Logo */}
           <a 
             href="#home" 
-            onClick={(e) => handleNavClick(e, 'home')} 
             className="flex items-center gap-2 focus:outline-none"
             aria-label="Go to home section"
           >
