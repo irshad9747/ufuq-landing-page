@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { smoothScrollTo } from '../utils/smoothScroll'
 import { getImagePath } from '../utils/imagePath'
-import StaggeredMenu from './StaggeredMenu'
 import GradualBlur from './GradualBlur'
 
 const SECTIONS = ['home', 'about', 'events', 'speakers', 'recent-activity', 'contact']
@@ -68,21 +67,11 @@ const Nav = () => {
   const navLinks = useMemo(() => [
     { id: 'home', label: 'Home' },
     { id: 'about', label: 'About' },
-    { id: 'events', label: 'Event' },
-    { id: 'speakers', label: 'Speaker' },
+    { id: 'events', label: 'Events' },
+    { id: 'speakers', label: 'Speakers' },
     { id: 'recent-activity', label: 'Past Events' },
     { id: 'contact', label: 'Contact' },
   ], [])
-
-  const menuItems = useMemo(() => navLinks.map(link => ({
-    label: link.label,
-    ariaLabel: `Go to ${link.label} section`,
-    link: `#${link.id}`,
-    onClick: (e) => {
-      e.preventDefault()
-      handleNavClick(e, link.id)
-    }
-  })), [navLinks, handleNavClick])
 
   return (
     <>
@@ -131,7 +120,9 @@ const Nav = () => {
           
           {/* Register Button - Right */}
           <a 
-            href="#" 
+            href="https://ufuqstfsiokerala.eventhex.ai/#tickets"
+            target="_blank"
+            rel="noopener noreferrer"
             className="btn-primary px-6 py-2.5 rounded-full text-white font-semibold tracking-wide focus:outline-none"
             aria-label="Register for UFUQ 2026"
           >
@@ -140,25 +131,74 @@ const Nav = () => {
         </div>
       </nav>
 
-      {/* Mobile Staggered Menu */}
-      <div className="max-[934px]:block min-[935px]:hidden">
-        <StaggeredMenu
-          position="right"
-          items={menuItems}
-          displaySocials={false}
-          displayItemNumbering={true}
-          menuButtonColor="#fff"
-          openMenuButtonColor="#fff"
-          changeMenuColorOnOpen={true}
-          colors={['#03030a', '#1a1a2e', '#16213e']}
-          logoUrl={getImagePath('/icons/ufuq-logo.webp')}
-          accentColor="#6C63FF"
-          isFixed={true}
-          closeOnClickAway={true}
-          onMenuOpen={() => setIsMenuOpen(true)}
-          onMenuClose={() => setIsMenuOpen(false)}
+      {/* Mobile Navigation */}
+      <nav className="max-[934px]:block min-[935px]:hidden fixed top-0 w-full z-[10000]" role="navigation" aria-label="Mobile navigation">
+        <div className="px-6 h-20 flex items-center justify-between">
+          {/* Logo */}
+          <a 
+            href="#home" 
+            onClick={(e) => handleNavClick(e, 'home')} 
+            className="flex items-center gap-2 focus:outline-none"
+            aria-label="Go to home section"
+          >
+            <img src={getImagePath('/icons/ufuq-logo.webp')} alt="UFUQ Logo" className="h-[50px]" />
+          </a>
+          
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className={`burger relative z-[10001] focus:outline-none ${isMenuOpen ? 'active' : ''}`}
+            aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={isMenuOpen}
+          >
+            <span className="bar" />
+            <span className="bar" />
+            <span className="bar" />
+          </button>
+        </div>
+
+        {/* Mobile Menu Overlay */}
+        <div 
+          className={`fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300 z-[9999] ${
+            isMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          }`}
+          onClick={() => setIsMenuOpen(false)}
+          aria-hidden="true"
         />
-      </div>
+
+        {/* Mobile Menu Slide Panel */}
+        <div 
+          className={`fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-gradient-to-b from-[rgba(15,15,25,0.98)] to-[rgba(10,10,20,0.98)] backdrop-blur-xl border-l border-[rgba(108,99,255,0.2)] shadow-2xl z-[10000] transition-transform duration-300 ease-out ${
+            isMenuOpen ? 'translate-x-0' : 'translate-x-full'
+          }`}
+        >
+          <div className="px-6 py-8 flex flex-col gap-4 h-full overflow-y-auto">
+            {/* Navigation Links */}
+            {navLinks.map((link) => (
+              <a
+                key={link.id}
+                href={`#${link.id}`}
+                onClick={(e) => handleNavClick(e, link.id)}
+                className={`text-lg font-semibold transition-colors focus:outline-none py-2 ${
+                  activeSection === link.id ? 'text-white' : 'text-gray-400 hover:text-white'
+                }`}
+                aria-current={activeSection === link.id ? 'page' : undefined}
+              >
+                {link.label}
+              </a>
+            ))}
+            <a 
+              href="https://ufuqstfsiokerala.eventhex.ai/#tickets"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-primary px-6 py-2.5 rounded-full text-white font-semibold tracking-wide focus:outline-none text-center mt-4"
+              aria-label="Register for UFUQ 2026"
+            >
+              Register Now
+            </a>
+          </div>
+        </div>
+      </nav>
     </>
   )
 }
